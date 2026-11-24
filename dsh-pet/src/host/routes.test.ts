@@ -29,6 +29,8 @@ const OWN = 'PETPACK-OWN-ASSET';
 const MAIN = 'MAIN-POOL-ASSET';
 /** 用户表情包目录（共享链）里的图 */
 const SHARED_PIC = 'SHARED-MEME-BYTES';
+/** 用户表情包目录里的越南语变体：与基础图同目录、同名 + .vi */
+const SHARED_VI_PIC = 'SHARED-MEME-VI-BYTES';
 /** 用户 pic 目录里的图：覆盖包内同名通知图标的标记内容 */
 const USER_PIC = 'USER-PIC-OVERRIDE';
 /** pet pack 独占表情包目录里的图 */
@@ -79,6 +81,7 @@ before(() => {
   // 表情包：用户目录（共享链）+ pet pack 独占目录（与 <名>-animation/ 同一套素材归属）
   mkdirSync(join(userRoot, 'memes'), { recursive: true });
   writeFileSync(join(userRoot, 'memes', '共用图.png'), SHARED_PIC);
+  writeFileSync(join(userRoot, 'memes', '共用图.vi.png'), SHARED_VI_PIC);
   mkdirSync(join(userRoot, 'pet', `${CN_PET}-memes`), { recursive: true });
   writeFileSync(join(userRoot, 'pet', `${CN_PET}-memes`, '自家图.png'), OWN_PIC);
   // 用户 pic 目录：覆盖包内通知图标（升级重装不会碰用户目录）
@@ -556,6 +559,25 @@ describe('pic/memes 路由 —— 表情包素材归属（与 thumb 同一套语
     const r = await call(`/dsh-pet-7340/pic/memes/${encodeURIComponent('共用图')}.png`);
     assert.equal(r.status, 200);
     assert.equal(r.body, SHARED_PIC);
+  });
+
+  test('本地化变体：.vi.png 存在时返回变体字节（带素材根与旧两段形式都支持）', async () => {
+    for (const url of [
+      `/dsh-pet-7340/pic/memes/main/${encodeURIComponent('共用图')}.vi.png`,
+      `/dsh-pet-7340/pic/memes/${encodeURIComponent('共用图')}.vi.png`,
+    ]) {
+      const r = await call(url);
+      assert.equal(r.status, 200, url);
+      assert.equal(r.body, SHARED_VI_PIC, url);
+    }
+  });
+
+  test('本地化变体缺失：请求 .vi.png 回退到基础图（独占目录同样适用）', async () => {
+    const r = await call(
+      `/dsh-pet-7340/pic/memes/${encodeURIComponent(CN_PET)}/${encodeURIComponent('自家图')}.vi.png`,
+    );
+    assert.equal(r.status, 200);
+    assert.equal(r.body, OWN_PIC);
   });
 
   test('独占就是独占：种类自己的目录里没有 → 404，绝不回落到用户/包内目录', async () => {

@@ -5,6 +5,7 @@
  */
 import type { MenuBranch, MenuLeaf, MenuNode } from './types.ts';
 import { t } from './i18n.ts';
+import { localizedMemeStem } from '../meme-locale.ts';
 
 /** 分组依据：条目级的三项配置，合并器已吹进每只宠物。 */
 export interface MemeGroupSource {
@@ -62,7 +63,7 @@ function memeLeaf(name: string, thumbOf?: (name: string) => string): MenuLeaf {
 }
 
 /**
- * 表情包图片地址：`<前缀>/pic/memes/<素材根>/<名称>.png`。
+ * 表情包图片地址：`<前缀>/pic/memes/<素材根>/<名称>.png`（vi 菜单语言下名称追加 `.vi`）。
  *
  * 两端前缀不同（浏览器是路由前缀、桌面是绝对地址），素材根缺省按 `main`——与宿主 /pic 的
  * 归属语义一致：素材根 = 条目 key，决定走哪条目录链。名称含中文，必须整段编码。
@@ -74,7 +75,9 @@ function memeLeaf(name: string, thumbOf?: (name: string) => string): MenuLeaf {
  */
 export function memeThumbUrl(baseUrl: string, assetRoot: string | undefined, name: string): string {
   const root = assetRoot && assetRoot.trim() !== '' ? assetRoot : 'main';
-  return baseUrl + '/pic/memes/' + encodeURIComponent(root) + '/' + encodeURIComponent(name) + '.png';
+  return (
+    baseUrl + '/pic/memes/' + encodeURIComponent(root) + '/' + encodeURIComponent(localizedMemeStem(name)) + '.png'
+  );
 }
 
 /**

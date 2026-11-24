@@ -1,4 +1,5 @@
 import { ROUTE_PATH } from './constants.ts';
+import { localizedMemeStem } from './meme-locale.ts';
 /**
  * 碎碎念的展示视图：文本 → 气泡行数据，以及配图节点与样式。
  * 不负责取数、生成与失败判定——宿主半侧生成后写进 /state 的 pets.<id>.say，两端只从轮询状态读。
@@ -26,6 +27,7 @@ export function whisperBubbleView(state: WhisperState): WhisperBubbleRow[] {
 }
 
 /** 表情包图片 URL，与视频同一套拼法：`<base>/pic/memes/<素材根>/<名称>.png`（素材根与名称都需编码）。
+ *  vi 菜单语言下名称为 `<名称>.vi`，宿主优先取该变体、缺失时回退基础图；其余语言直接用基础名。
  *  带素材根是为了表达这张图属于哪只宠物：`pet/<素材根>-memes/` 存在时该种类只认自己的目录，
  *  否则走用户目录与包内 assets/memes；assetRoot 为空则退回两段形式，未打标的宠物与老宿主仍能取到图。
  *  base 已含 /dsh-pet-7340 前缀（与视频的 assetBase 一致），函数内不得再拼一次，否则桌面端图裂。
@@ -33,7 +35,7 @@ export function whisperBubbleView(state: WhisperState): WhisperBubbleRow[] {
 export function memeImageUrl(name: string, base = ROUTE_PATH, assetRoot = ''): string {
   const root = String(assetRoot ?? '').trim();
   const prefix = root ? '/pic/memes/' + encodeURIComponent(root) : '/pic/memes';
-  return base + prefix + '/' + encodeURIComponent(name) + '.png';
+  return base + prefix + '/' + encodeURIComponent(localizedMemeStem(name)) + '.png';
 }
 
 /** 气泡配图 class（两端共用，样式见 MEME_BUBBLE_CSS）。 */

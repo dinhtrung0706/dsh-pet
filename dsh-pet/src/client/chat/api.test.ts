@@ -21,6 +21,7 @@ import {
   roundsToRevealMemory,
   toChatMessages,
 } from './api.ts';
+import { setMenuLocale } from '../../shared/menu/i18n.ts';
 
 describe('toChatMessages —— GET /chat 响应整形', () => {
   test('正常消息 → 原样保留 role / content / ts', () => {
@@ -145,8 +146,18 @@ describe('取图地址', () => {
   });
 
   test('memeUrl 带素材根；素材根为空时退回两段形式', () => {
-    assert.equal(memeUrl('可爱', 'main'), '/dsh-pet-7340/pic/memes/main/%E5%8F%AF%E7%88%B1.png');
-    assert.equal(memeUrl('可爱', '  '), '/dsh-pet-7340/pic/memes/%E5%8F%AF%E7%88%B1.png');
+    setMenuLocale('vi');
+    assert.equal(memeUrl('可爱', 'main'), '/dsh-pet-7340/pic/memes/main/%E5%8F%AF%E7%88%B1.vi.png');
+    assert.equal(memeUrl('可爱', '  '), '/dsh-pet-7340/pic/memes/%E5%8F%AF%E7%88%B1.vi.png');
+  });
+
+  test('zh-CN：取基础图，不请求 .vi 变体', () => {
+    setMenuLocale('zh-CN');
+    try {
+      assert.equal(memeUrl('可爱', 'main'), '/dsh-pet-7340/pic/memes/main/%E5%8F%AF%E7%88%B1.png');
+    } finally {
+      setMenuLocale('vi');
+    }
   });
 });
 

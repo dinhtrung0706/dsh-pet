@@ -14,6 +14,37 @@ import { existsSync } from 'node:fs';
 import type { PetRouteDeps, RouteInput } from './types.ts';
 import type { RouteResult } from '../http.ts';
 
+/** 表情包本地化变体后缀：客户端在 vi 语言下请求 `<名>.vi.png`。 */
+const MEME_VI_SUFFIX = '.vi.png';
+
+/**
+ * 表情包请求名 → 查盘候选（按优先级）。
+ *
+ * 只有 `.vi.png` 带基础图回退；基础图仍是必备项，本地化变体只是覆盖层，
+ * 因此任何语言都不会因为缺变体而图裂。
+ */
+function memeFileCandidates(rel: string): readonly string[] {
+  if (!rel.endsWith(MEME_VI_SUFFIX)) return [rel];
+  return [rel, rel.slice(0, -MEME_VI_SUFFIX.length) + '.png'];
+}
+
+/**
+ * 按目录链找表情包文件；目录优先级高于语言变体——用户目录里的基础图不能被包内的 vi 变体盖掉。
+ * @param dirs - 目录链（顺序即优先级）。
+ * @param rel - 请求里的文件名（可能带 `.vi.png`）。
+ * @returns 命中的绝对路径；都没有时 undefined。
+ */
+function findMemeFile(dirs: readonly string[], rel: string): string | undefined {
+  const candidates = memeFileCandidates(rel);
+  for (const dir of dirs) {
+    for (const candidate of candidates) {
+      const file = resolveExisting(dir, candidate);
+      if (file !== undefined) return file;
+    }
+  }
+  return undefined;
+}
+
 /** 静态素材领域：未命中返回 undefined，命中返回应答。 */
 export async function handleAssetsRoutes(deps: PetRouteDeps, input: RouteInput): Promise<RouteResult | undefined> {
   const { assetRootFor, memeDirsFor, petConfigDir, userRoot, userRootFor } = deps;
@@ -59,7 +90,7 @@ export async function handleAssetsRoutes(deps: PetRouteDeps, input: RouteInput):
   // 用户层是为了自定义图标能活过插件升级——升级重装会把包内 assets 还原成内置那套。
   // 表情包：/pic/memes/<素材根>/<名称>.png → 按素材根走 memeDirsFor 的目录链，与 /thumb 同一套
   // 归属语义；名称含中文，URL 段已在上方解码。旧的两段形式 /pic/memes/<名称>.png 保留，
-  // 等价于素材根 main 的目录链。
+  // 等价于素材根 main 的目录链。vi 客户端请求 <名称>.vi.png，缺失时回退基础图 <名称>.png。
   if (scope === 'pic') {
     if (restParts[0] === 'memes') {
       const segs = restParts.slice(1);
@@ -71,11 +102,7 @@ export async function handleAssetsRoutes(deps: PetRouteDeps, input: RouteInput):
         return { kind: 'text', status: 400, body: 'dsh-pet: invalid asset root' };
       }
       const rel = (scoped ? segs.slice(1) : segs).join('/');
-      let picFile: string | undefined;
-      for (const dir of memeDirsFor(assetRoot)) {
-        picFile = resolveExisting(dir, rel);
-        if (picFile !== undefined) break;
-      }
+      const picFile = findMemeFile(memeDirsFor(assetRoot), rel);
       if (picFile === undefined) return { kind: 'text', status: 404, body: 'dsh-pet: pic not found' };
       const ext = picFile.slice(picFile.lastIndexOf('.')).toLowerCase();
       return { kind: 'file', file: picFile, contentType: MIME[ext] ?? 'application/octet-stream' };

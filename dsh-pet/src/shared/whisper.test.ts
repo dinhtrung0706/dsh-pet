@@ -6,7 +6,7 @@
  *
  * 跑法：node --experimental-strip-types --test src/shared/whisper.test.ts
  */
-import { test, describe } from 'node:test';
+import { beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -17,6 +17,10 @@ import {
   createMemeImageFromUrl,
   memeImageUrl,
 } from './whisper.ts';
+import { setMenuLocale } from './menu/i18n.ts';
+
+// 本文件主要钉 URL 结构；语言变体另有专门用例，先把全局切到基础语言，避免每条断言都带 .vi。
+beforeEach(() => setMenuLocale('zh-CN'));
 
 describe('memeImageUrl —— 表情包图片地址', () => {
   test('中文名被 URL 编码（路由段只认编码后的形态）', () => {
@@ -85,6 +89,14 @@ describe('memeImageUrl —— 表情包图片地址', () => {
     assert.equal(
       memeImageUrl('可爱', undefined, 'main'),
       '/dsh-pet-7340/pic/memes/main/' + encodeURIComponent('可爱') + '.png',
+    );
+  });
+
+  test('vi 语言 → 请求 .vi.png 变体（缺失时由宿主回退基础图）', () => {
+    setMenuLocale('vi');
+    assert.equal(
+      memeImageUrl('可爱', '/dsh-pet-7340', 'pack1'),
+      '/dsh-pet-7340/pic/memes/pack1/' + encodeURIComponent('可爱') + '.vi.png',
     );
   });
 });

@@ -1,6 +1,6 @@
 /**
  * 菜单语言选择卡：切换右键菜单的显示语言（vi / zh-CN）。
- * 只改本地内存状态，不随「保存」写盘——重刷页面后恢复默认 vi。
+ * 同时决定表情包配图优先取 `.vi.png` 变体还是基础图；只改本地内存状态，不随「保存」写盘——重刷页面后恢复默认 vi。
  * @module dsh-pet/src/client/settings/language-card
  */
 import type { FunctionComponent } from 'react';
@@ -40,9 +40,7 @@ export function makeLanguageCard(rt: SettingsRuntime): FunctionComponent<Languag
       children: [
         h('div', {
           className: 'dsh-pet-cfg__cardHead',
-          children: [
-            h('span', { className: 'dsh-pet-cfg__cardTitle', children: 'Ngôn ngữ菜单' }),
-          ],
+          children: [h('span', { className: 'dsh-pet-cfg__cardTitle', children: 'Ngôn ngữ菜单' })],
         }),
         field(
           'Menu language',
@@ -51,11 +49,9 @@ export function makeLanguageCard(rt: SettingsRuntime): FunctionComponent<Languag
             disabled: props.busy,
             value: locale,
             onChange,
-            children: LANGUAGES.map((lang) =>
-              h('option', { value: lang.value, children: lang.label }),
-            ),
+            children: LANGUAGES.map((lang) => h('option', { value: lang.value, children: lang.label })),
           }),
-          'Chọn ngôn ngữ hiển thị cho menu chuột phải (chỉ ảnh hưởng menu, không ảnh hưởng trang cài đặt).',
+          'Chọn ngôn ngữ hiển thị cho menu chuột phải và ảnh meme (không ảnh hưởng trang cài đặt).',
         ),
       ],
     });

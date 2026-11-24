@@ -2941,6 +2941,10 @@ paths:
           Dạng hai đoạn cũ `/dsh-pet-7340/pic/memes/<名>.png` vẫn hoạt động, tương đương chuỗi fallback của thư mục gốc tài nguyên `main`
           (client chưa nâng cấp vẫn lấy được meme trong gói như trước).
 
+          Tên meme hỗ trợ biến thể ngôn ngữ: khi ngôn ngữ menu là vi, client yêu cầu `<名>.vi.png`;
+          nếu tệp này tồn tại thì trả về nó, ngược lại quay về `<名>.png`. Ảnh gốc vẫn là bắt buộc,
+          biến thể chỉ là lớp ghi đè tùy chọn.
+
           `素材根` là **định danh** (không phải đoạn đường dẫn): chứa dấu phân cách / ký tự dành riêng thì trả `400`, trước mọi bước ghép đường dẫn.
           Tên meme chính là tên tệp (không gồm thư mục con); cả hai dùng chung cơ chế kiểm tra ngăn truy cập vượt đường dẫn.
       parameters:
@@ -3397,8 +3401,8 @@ components:
       in: path
       required: true
       description: |
-        Tên tệp, có thể gồm thư mục con. Meme dùng `memes/<素材根>/<名>.png` (cũng chấp nhận dạng cũ `memes/<名>.png`),
-        biểu tượng thông báo dùng `<名>.png`.
+        Tên tệp, có thể gồm thư mục con. Meme dùng `memes/<素材根>/<名>.png` (cũng chấp nhận dạng cũ `memes/<名>.png`,
+        biến thể ngôn ngữ `<名>.vi.png` trả về qua cùng tuyến), biểu tượng thông báo dùng `<名>.png`.
       schema:
         type: string
 

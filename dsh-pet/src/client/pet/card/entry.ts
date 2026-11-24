@@ -342,7 +342,7 @@ export function createCardEntry(rt: CardEntryRuntime) {
       const more = buildMoreBranch(menuItemsRef.current);
       // 「配图」：按配置里的清单分成「纳入对话的配图 / 其他」，点一张就用它说一句。
       // 没有可用图时返回 null，整项不出现（不占一个点开是空的菜单）。
-      // 缩略图靠 /pic/memes/<素材根>/<名称>.png：素材根就是拍平时写入的条目 key。
+      // 缩略图靠 /pic/memes/<素材根>/<名称>.png：素材根就是拍平时写入的条目 key；vi 语言下名称带 .vi。
       const pic = cfgRef.current;
       const memes = buildMemeBranch(pic, (name) => memeThumbUrl(ROUTE_PATH, pic.assetRoot, name));
       // 睡觉/起来是同一个入口的两种文案：睡着时点它等于叫醒（与「点击宠物」同义）。

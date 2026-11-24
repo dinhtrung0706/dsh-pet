@@ -2,6 +2,7 @@
  * 右键菜单轻量 i18n：两端共用同一套字典，默认显示越南语（vi）。
  *
  * 仅负责菜单文案翻译；设置页走独立的 `client/settings/locales` 字典，不在此处覆盖。
+ * 它同时是表情包语言变体的语言源：`shared/meme-locale` 按当前值决定是否请求 `.vi.png`。
  * @module dsh-pet/src/shared/menu/i18n
  */
 

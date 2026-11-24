@@ -8,6 +8,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { buildMemeBranch, groupMemes, memeThumbUrl } from './memes.ts';
+import { setMenuLocale } from './i18n.ts';
 import type { MenuBranch, MenuLeaf } from './types.ts';
 
 /** 三张可用图（顺序即书写顺序）。 */
@@ -120,16 +121,26 @@ describe('buildMemeBranch —— 菜单形状', () => {
 });
 
 describe('memeThumbUrl —— 缩略图地址', () => {
-  test('素材根与名称各占一段：中文与空格都必须编码', () => {
+  test('素材根与名称各占一段：中文与空格都必须编码，默认 vi 追加 .vi', () => {
+    setMenuLocale('vi');
     assert.equal(
       memeThumbUrl('/dsh-pet-7340', 'my pack', '大的 要来啦'),
-      '/dsh-pet-7340/pic/memes/my%20pack/%E5%A4%A7%E7%9A%84%20%E8%A6%81%E6%9D%A5%E5%95%A6.png',
+      '/dsh-pet-7340/pic/memes/my%20pack/%E5%A4%A7%E7%9A%84%20%E8%A6%81%E6%9D%A5%E5%95%A6.vi.png',
     );
   });
 
   test('素材根缺省或纯空白：按 main（与宿主 /pic 的归属语义一致）', () => {
-    assert.equal(memeThumbUrl('/x', undefined, 'a'), '/x/pic/memes/main/a.png');
-    assert.equal(memeThumbUrl('/x', '   ', 'a'), '/x/pic/memes/main/a.png');
+    assert.equal(memeThumbUrl('/x', undefined, 'a'), '/x/pic/memes/main/a.vi.png');
+    assert.equal(memeThumbUrl('/x', '   ', 'a'), '/x/pic/memes/main/a.vi.png');
+  });
+
+  test('zh-CN：取基础图，不追加 .vi', () => {
+    setMenuLocale('zh-CN');
+    try {
+      assert.equal(memeThumbUrl('/x', undefined, 'a'), '/x/pic/memes/main/a.png');
+    } finally {
+      setMenuLocale('vi');
+    }
   });
 });
 

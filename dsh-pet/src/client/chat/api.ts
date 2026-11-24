@@ -8,6 +8,7 @@
 import { sendChat, type ChatAttachment } from '../../shared/chat/send.ts';
 import { flattenConfigPets } from '../../shared/config.ts';
 import { ROUTE_PATH } from '../../shared/constants.ts';
+import { localizedMemeStem } from '../../shared/meme-locale.ts';
 import { postAction } from '../../shared/state.ts';
 import type { Pet } from '../../shared/types.ts';
 
@@ -142,7 +143,7 @@ export function attachmentUrl(ref: ChatImageRef): string {
 export function memeUrl(name: string, assetRoot: string): string {
   const root = assetRoot.trim();
   const prefix = root === '' ? '' : encodeURIComponent(root) + '/';
-  return ROUTE_PATH + '/pic/memes/' + prefix + encodeURIComponent(name) + '.png';
+  return ROUTE_PATH + '/pic/memes/' + prefix + encodeURIComponent(localizedMemeStem(name)) + '.png';
 }
 
 /** 面板需要的配置：宠物列表 + 每个条目保留的对话轮数 + 每只宠物的人设正文。 */
