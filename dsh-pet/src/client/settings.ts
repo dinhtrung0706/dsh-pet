@@ -37,6 +37,7 @@ import { makePetTabs } from './settings/pet-tabs.ts';
 import { createWriteFlow } from './settings/config/index.ts';
 import { makePhysicsCard } from './settings/physics-card.ts';
 import { makeShortcutsCard } from './settings/shortcuts-card.ts';
+import { makeLanguageCard } from './settings/language-card.ts';
 import { attachTipLayer } from './settings/tip-layer.ts';
 import type { ShortcutHost } from './app-shortcut.ts';
 import type { SettingsRuntime } from './settings/runtime.ts';
@@ -88,6 +89,7 @@ export function makePetConfigSection(
   const MotionCard = makeMotionCard(rt);
   const ShortcutsCard = makeShortcutsCard(rt, ctx);
   const MobileCard = makeMobileCard(rt);
+  const LanguageCard = makeLanguageCard(rt);
   const Actions = makeActions(rt);
   const { ConfigMetaCard, StorageCard } = makePathsCards(rt);
   const SettingsDialog = makeDialog(rt);
@@ -514,6 +516,7 @@ export function makePetConfigSection(
         h(PhysicsCard, { busy, physics, onChange: patchPhysics }),
         h(MotionCard, { busy, weights, onChange: setWeights }),
         h(MobileCard, { busy, physics, onChange: patchPhysics }),
+        h(LanguageCard, { busy }),
         h(EnvironmentCard, { busy, city: environmentCity, onChange: setEnvironmentCity }),
         h(Actions, {
           busy,

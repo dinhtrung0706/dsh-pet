@@ -8,6 +8,7 @@
 
 import type { BalanceBubbleRow, BalanceView } from '../types.ts';
 import type { ShapeHandler } from './shape.ts';
+import { t } from '../../menu/i18n.ts';
 
 /**
  * 各币种按自己的基准算剩余比例，相加后折算成已用百分比。
@@ -41,11 +42,11 @@ function moneyRows(v: BalanceView): BalanceBubbleRow[] {
     .sort((a, b) => (a.currency === 'CNY' ? 0 : 1) - (b.currency === 'CNY' ? 0 : 1));
   const amount =
     visible.length > 0 ? visible.map((w) => (w.currency === 'USD' ? '$' : '¥') + w.total).join('/') : '¥0.00';
-  if (!v.tier) return [{ role: 'label', text: '余额 ' + amount }];
+  if (!v.tier) return [{ role: 'label', text: t('balance.label') + ' ' + amount }];
   return [
-    { role: 'label', text: '余额（' },
-    { role: 'tier', tier: v.tier, text: v.tier === 'peak' ? '峰' : '谷' },
-    { role: 'label', text: '）' + amount },
+    { role: 'label', text: t('balance.label') + t('balance.open-paren') },
+    { role: 'tier', tier: v.tier, text: v.tier === 'peak' ? t('tier.peak') : t('tier.valley') },
+    { role: 'label', text: t('balance.close-paren') + amount },
   ];
 }
 

@@ -35,6 +35,10 @@ import {
   type BalanceView,
   type CustomBalance,
 } from './balance/index.ts';
+import { setMenuLocale } from './menu/i18n.ts';
+
+// 断言写的是中文文案；锁定语言，避免默认越南语导致失败（文案逻辑与语言无关）。
+setMenuLocale('zh-CN');
 
 /** 包内文件源码（守卫用；相对 src/shared/ 解析） */
 const readSource = (rel: string): string => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');

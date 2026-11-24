@@ -7,30 +7,20 @@
  */
 
 import { quotaTone } from '../tone.ts';
+import { t } from '../../menu/i18n.ts';
 import type { BalanceBubbleRow, BalanceView, WindowKey, WindowUsage } from '../types.ts';
 import type { ShapeHandler } from './shape.ts';
 
-/**
- * 周与月的窗口展示名，供气泡与联想框文案使用。
- *
- * 滚动窗的时长是服务商自己的业务事实（如 5 小时），不走这张表，见 DEFAULT_ROLLING_LABEL。
- */
-export const WINDOW_LABELS = {
-  weekly: '周',
-  monthly: '月',
-} as const;
-
-/**
- * 滚动窗展示名的兜底，服务商应随数据带 rollingLabel，缺省时才用它。
+/** 滚动窗展示名的兜底，服务商应随数据带 rollingLabel，缺省时才用它。
  *
  * 缺一个标签会让气泡出现空档，而 5h 是当前两个滚动窗口服务商的共同取值。
  */
 export const DEFAULT_ROLLING_LABEL = '5h';
 
-/** 取窗口展示名：滚动窗用服务商自报值，周与月走固定表 */
+/** 取窗口展示名：滚动窗用服务商自报值，周与月走翻译表（运行时取，切语言即时生效） */
 function windowLabel(v: BalanceView, w: WindowKey): string {
   if (w === 'rolling') return v.rollingLabel ?? DEFAULT_ROLLING_LABEL;
-  return WINDOW_LABELS[w];
+  return w === 'weekly' ? t('window.weekly') : t('window.monthly');
 }
 
 /** 各窗口的满额度，全部来自数据 */
@@ -90,13 +80,13 @@ export function urgentWindow(v: BalanceView): WindowUsage | undefined {
  */
 export function resetInText(iso?: string): string {
   if (!iso) return '';
-  const t = new Date(iso).getTime();
-  if (!Number.isFinite(t)) return '';
-  const delta = t - Date.now();
-  if (delta <= 0) return '已重置';
+  const at = new Date(iso).getTime();
+  if (!Number.isFinite(at)) return '';
+  const delta = at - Date.now();
+  if (delta <= 0) return t('window.reset-done');
   const hoursF = delta / 3_600_000;
-  if (hoursF >= 96) return (Math.round((hoursF / 24) * 10) / 10).toFixed(1) + ' 天';
-  return Math.max(0.1, Math.round(hoursF * 10) / 10).toFixed(1) + ' 小时';
+  if (hoursF >= 96) return (Math.round((hoursF / 24) * 10) / 10).toFixed(1) + t('window.reset-day');
+  return Math.max(0.1, Math.round(hoursF * 10) / 10).toFixed(1) + t('window.reset-hour');
 }
 
 /** 三窗口取最大值，只有月窗口时就是它本身 */
@@ -104,19 +94,19 @@ function windowsPercent(v: BalanceView): number | undefined {
   return Math.max(v.rolling ?? 0, v.weekly ?? 0, v.monthly ?? 0);
 }
 
-/** 把 resetInText 的三种返回翻成一句提示：空串 = 时间未知，'已重置' = 已经过点，其余 = 倒计时。 */
+/** 把 resetInText 的三种返回翻成一句提示：空串 = 时间未知，「已重置」= 已经过点，其余 = 倒计时 +「重置」后缀。 */
 function resetPhrase(reset: string): string {
-  if (reset === '') return '重置时间未知';
-  return reset === '已重置' ? reset : reset + '重置';
+  if (reset === '') return t('window.reset-unknown');
+  return reset === t('window.reset-done') ? reset : reset + t('window.reset-phrase');
 }
 
 /** 两行：最紧迫窗口的已用百分比与重置倒计时 */
 function windowsRows(v: BalanceView): BalanceBubbleRow[] {
   const w = urgentWindow(v);
-  if (!w) return [{ role: 'label', text: '额度数据不可用' }];
+  if (!w) return [{ role: 'label', text: t('window.no-data') }];
   const reset = resetInText(w.resetsAt);
   return [
-    { role: 'label', text: w.label + '额度已用 ' + Math.round(w.percent) + '%' },
+    { role: 'label', text: w.label + t('window.used') + Math.round(w.percent) + '%' },
     { role: 'sub', text: resetPhrase(reset) },
   ];
 }
@@ -171,9 +161,9 @@ function windowsUsage(v: BalanceView): BalanceBubbleRow[] | undefined {
   const u = v.usage;
   if (!u) return undefined;
   const total = compactCount(u.totalTokens);
-  const input = compactCount(u.inputTokens) + ' 入';
-  const output = compactCount(u.outputTokens) + ' 出';
-  const period = '本期 ' + u.requests + ' 次';
+  const input = compactCount(u.inputTokens) + t('token.in');
+  const output = compactCount(u.outputTokens) + t('token.out');
+  const period = t('token.period') + u.requests + t('token.times');
   const spend = '$' + u.spentUsd.toFixed(2);
   // 比例条用真实占比：输入通常占绝对多数，条看起来几乎单色是事实，不做最小宽度放大。
   const sum = u.inputTokens + u.outputTokens;

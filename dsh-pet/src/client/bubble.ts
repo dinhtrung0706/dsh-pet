@@ -27,6 +27,7 @@ import { ROUTE_PATH } from '../shared/constants.ts';
 import type { EnvState } from '../shared/state.ts';
 import { envBubbleView } from '../shared/env-view.ts';
 import type { EnvIconShape } from '../shared/env-icon.ts';
+import { getMenuLocale } from '../shared/menu/i18n.ts';
 
 /** 说话气泡被戳破后的消失时长（ms），与 `.is-popping` 的 keyframes 同值：到点才允许上层收起。 */
 const WHISPER_POP_MS = 420;
@@ -38,7 +39,7 @@ const WHISPER_POP_MS = 420;
  */
 const bubbleCss = [
   // 本地字体：由 host 从 assets/fonts 提供；font-display:swap 先回退后切换。
-  `@font-face{font-family:"ShangshouSoftCandy";src:url("${ROUTE_PATH}/font/上首软糖体.ttf") format("truetype");font-display:swap;font-weight:400}`,
+  `@font-face{font-family:"ShangshouSoftCandy";src:url("${ROUTE_PATH}/font/${getMenuLocale() == 'zh-CN' ? '上首软糖体' : 'PatrickHand-Regular'}.ttf") format("truetype");font-display:swap;font-weight:400}`,
   '.dsh-pet-bubble{position:absolute;left:50%;transform:translateX(-50%);' +
     'bottom:calc(100% - var(--dsh-pet-size)*0.108);' +
     'width:max-content;min-width:calc(var(--f)*5.7143);max-width:min(calc(var(--f)*16),100%);' +

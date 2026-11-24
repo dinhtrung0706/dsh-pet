@@ -9,6 +9,7 @@
 
 import type { BalanceBubbleRow, BalanceView } from '../types.ts';
 import type { ShapeHandler } from './shape.ts';
+import { t } from '../../menu/i18n.ts';
 
 /**
  * 与 money 同一套「按基准折算」的数学，数据来自 points 而非 wallets。
@@ -29,8 +30,8 @@ function pointsPercent(v: BalanceView): number | undefined {
  */
 function pointsRows(v: BalanceView): BalanceBubbleRow[] {
   const p = v.points;
-  if (!p) return [{ role: 'label', text: '积分数据不可用' }];
-  return [{ role: 'label', text: '余额 ' + p.total + ' ' + p.unit }];
+  if (!p) return [{ role: 'label', text: t('points.no-data') }];
+  return [{ role: 'label', text: t('balance.label') + ' ' + p.total + ' ' + p.unit }];
 }
 
 /** points 形态的展示规则：百分比按积分基准折算，气泡只拼数字与单位。 */

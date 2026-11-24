@@ -19,3 +19,5 @@ export {
 export { buildMemeBranch, groupMemes, memeThumbUrl } from './menu/memes.ts';
 export { MENU_CSS } from './menu/css.ts';
 export { mountContextMenu } from './menu/mount.ts';
+export type { MenuLocale } from './menu/i18n.ts';
+export { setMenuLocale, getMenuLocale, t } from './menu/i18n.ts';

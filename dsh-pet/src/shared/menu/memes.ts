@@ -4,6 +4,7 @@
  * @module dsh-pet/src/shared/menu/memes
  */
 import type { MenuBranch, MenuLeaf, MenuNode } from './types.ts';
+import { t } from './i18n.ts';
 
 /** 分组依据：条目级的三项配置，合并器已吹进每只宠物。 */
 export interface MemeGroupSource {
@@ -90,8 +91,8 @@ export function buildMemeBranch(source: MemeGroupSource, thumbOf?: (name: string
   const { chat, other } = groupMemes(source);
   const leaf = (name: string): MenuLeaf => memeLeaf(name, thumbOf);
   const groups: MenuNode[] = [];
-  if (chat.length > 0) groups.push({ label: '纳入对话的配图', children: chat.map(leaf) });
-  if (other.length > 0) groups.push({ label: '其他', children: other.map(leaf) });
+  if (chat.length > 0) groups.push({ label: t('meme.chat'), children: chat.map(leaf) });
+  if (other.length > 0) groups.push({ label: t('meme.other'), children: other.map(leaf) });
   if (groups.length === 0) return null;
-  return { label: '配图', children: groups };
+  return { label: t('meme.branch'), children: groups };
 }
