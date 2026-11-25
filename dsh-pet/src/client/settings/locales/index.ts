@@ -20,4 +20,5 @@ export const NS = 'pet.config';
 export const dicts = { zh, en, ja, es, fr, de, ru, pt };
 
 export { zh } from './zh.ts';
+export { en } from './en.ts';
 export type { Key } from './zh.ts';

@@ -50,6 +50,7 @@ import { DEFAULT_WEIGHTS } from '../shared/weights.ts';
 
 // 字典与桥的真源都在 settings/ 里：宿主的 locale 注册、容器与测试夹具都经这里取，不各自深路径引用。
 export { dicts, NS } from './settings/locales/index.ts';
+export { en, zh } from './settings/locales/index.ts';
 export type { Key } from './settings/locales/index.ts';
 export { petBridge };
 
