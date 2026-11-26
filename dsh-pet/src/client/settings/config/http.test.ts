@@ -292,4 +292,9 @@ describe('buildSaveBody —— 请求体字段', () => {
     assert.deepEqual(body.physics, { gravity: 3 });
     assert.equal(body.notificationsEnabled, false);
   });
+
+  test('assetRoot 是读侧标注，不随请求体写回', () => {
+    const fields = { pets: [{ id: 'pet-1', assetRoot: 'main' }] } as unknown as SaveFields;
+    assert.deepEqual(buildSaveBody(fields).pets, [{ id: 'pet-1' }]);
+  });
 });

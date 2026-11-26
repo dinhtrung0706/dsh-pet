@@ -30,6 +30,10 @@ const defaults = {
       throwPower: 1,
       ceilingBounce: false,
       petCollision: false,
+      hapticEnabled: true,
+      tiltGravity: true,
+      shakeThrow: true,
+      dragSpring: true,
     },
     whisperModel: { provider: '', model: '' },
     chatModel: { provider: '', model: '' },
@@ -119,10 +123,15 @@ async function open(t, { get = customized, put, post, viewport = { width: 900, h
   return { page, writes };
 }
 
+/** 操作区里的全局保存按钮；宠物卡里还有一个同名的单宠保存，不能按名字裸查。 */
+function saveButton(page) {
+  return page.locator('.dsh-pet-cfg__actions').getByRole('button', { name: 'Save', exact: true });
+}
+
 async function save(page) {
   await Promise.all([
     page.waitForResponse((response) => response.request().method() === 'PUT'),
-    page.getByRole('button', { name: 'Save', exact: true }).first().click(),
+    saveButton(page).click(),
   ]);
 }
 
@@ -154,7 +163,8 @@ test('config save errors: write failures keep edits visible and allow a retry', 
 
 test('config save errors: validation failures explain the rejected configuration', async (t) => {
   const { page } = await open(t, {
-    put: (route) => route.fulfill({ status: 400, json: { error: 'invalid pet config' } }),
+    // 业务失败按契约是 200 + { ok:false, reason }，不是 4xx。
+    put: (route) => route.fulfill({ json: { ok: false, reason: 'bad-request', message: 'invalid pet config' } }),
   });
   await save(page);
   await page
@@ -200,7 +210,7 @@ test('pending config prevents editing and saving placeholder defaults', async (t
     },
   });
   try {
-    assert.equal(await page.getByRole('button', { name: 'Save', exact: true }).isDisabled(), true);
+    assert.equal(await saveButton(page).isDisabled(), true);
     assert.equal(await page.locator('input[type=text]').first().isDisabled(), true);
     assert.deepEqual(writes, []);
   } finally {
@@ -222,7 +232,7 @@ for (const failure of ['http', 'network', 'malformed', 'null']) {
               ),
     });
     await page.getByRole('alert').waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Save', exact: true }).isDisabled(), true);
+    assert.equal(await saveButton(page).isDisabled(), true);
     assert.deepEqual(writes, []);
     fail = false;
     await page.getByRole('button', { name: 'Retry', exact: true }).click();
@@ -278,7 +288,9 @@ test('model picker remains anchored while the responsive settings panel is scrol
   await trigger.click();
   const panel = page.getByRole('menu');
   await panel.waitFor();
-  for (const scrollY of [0, 120]) {
+  // 设置页比视口高：先把触发器滚到视口中段，再上下滚动，验证浮层跟着走且不出视口。
+  const base = await trigger.evaluate((el) => Math.max(0, el.getBoundingClientRect().top + window.scrollY - 300));
+  for (const scrollY of [base, base + 120]) {
     await page.evaluate((y) => window.scrollTo(0, y), scrollY);
     await page.waitForFunction(() => {
       const trigger = document.querySelector('.dsh-pet-mp__trigger').getBoundingClientRect();

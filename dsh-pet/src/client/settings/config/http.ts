@@ -76,6 +76,20 @@ export type SaveOutcome =
   | { kind: 'error' };
 
 /**
+ * 提交体只带宠物自身字段：`assetRoot` 是读侧标注（= 条目名），由端点与条目决定，不写回文件。
+ *
+ * @param pets - 编辑列表里的实例（可能带读侧标注）。
+ * @returns 去掉 `assetRoot` 的实例；其余字段原样保留。
+ */
+function persistedPets(pets: readonly Pet[]): Pet[] {
+  return pets.map((pet) => {
+    const copy = { ...pet };
+    delete copy.assetRoot;
+    return copy;
+  });
+}
+
+/**
  * 把表单状态压成请求体。
  *
  * @param fields - 表单当前值。
@@ -83,7 +97,7 @@ export type SaveOutcome =
  */
 export function buildSaveBody(fields: SaveFields): Record<string, unknown> {
   return {
-    pets: fields.pets,
+    pets: persistedPets(fields.pets),
     notificationsEnabled: fields.notificationsEnabled,
     notifyWhenFocused: fields.notifyWhenFocused,
     clickSoundEnabled: fields.clickSoundEnabled,
@@ -230,7 +244,7 @@ export async function savePetLayer(entry: string, pets: readonly Pet[]): Promise
     const response = await fetch(ROUTE_PATH + '/pet-config', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ entry, pets }),
+      body: JSON.stringify({ entry, pets: persistedPets(pets) }),
     });
     const payload = (await response.json().catch(() => null)) as {
       ok?: unknown;
